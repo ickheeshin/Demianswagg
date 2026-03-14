@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>High-Beta Expectation-Driven Valuation Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-glow"></div>
+    <main class="container">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Expectation-Driven Valuation</p>
+          <h1>High-Beta / Optionality / Product-Platform Hybrid 엔진</h1>
+          <p class="subtitle">
+            고옵션가치 기업(TSLA, PLTR, IONQ 등)의 기대를 역산하고 Core / Execution / Ecosystem / Drag로 분해합니다.
+          </p>
+        </div>
+        <button id="fill-demo" class="secondary-btn" type="button">데모 데이터 채우기</button>
+      </header>
+
+      <section class="panel">
+        <h2>입력 데이터 (T0 / T-1 / Tpf)</h2>
+        <form id="valuation-form" class="grid">
+          <label>기업명<input name="company" required placeholder="예: TSLA" /></label>
+          <label>현재 주가 (T0)<input name="price" type="number" step="0.01" required /></label>
+          <label>EV/EBIT (x)<input name="evEbit" type="number" step="0.1" required /></label>
+          <label>EV/Revenue (x)<input name="evRev" type="number" step="0.1" required /></label>
+          <label>최근 연매출 (T-1, $B)<input name="revenue" type="number" step="0.1" required /></label>
+          <label>최근 연매출 성장률 (%)<input name="growth" type="number" step="0.1" required /></label>
+          <label>매출총이익률 GM (%)<input name="gm" type="number" step="0.1" required /></label>
+          <label>EBIT 마진 (%)<input name="ebitMargin" type="number" step="0.1" required /></label>
+          <label>FCF 마진 (%)<input name="fcfMargin" type="number" step="0.1" required /></label>
+          <label>Net Cash ($B)<input name="netCash" type="number" step="0.1" required /></label>
+          <label>완전희석 주식수 (B shares)<input name="shares" type="number" step="0.01" required /></label>
+          <label>SBC (연, $B)<input name="sbc" type="number" step="0.01" required /></label>
+          <label>설치기반 (M units/users)<input name="installedBase" type="number" step="0.1" required /></label>
+          <label>Attach rate (%)<input name="attachRate" type="number" step="0.1" required /></label>
+          <label>ARPU ($/year)<input name="arpu" type="number" step="1" required /></label>
+          <label>Recurring monetization 존재
+            <select name="recurring">
+              <option value="yes">예</option>
+              <option value="no">아니오</option>
+            </select>
+          </label>
+          <label>OTA 업데이트 가능
+            <select name="ota">
+              <option value="yes">예</option>
+              <option value="no">아니오</option>
+            </select>
+          </label>
+          <label>Data feedback loop 존재
+            <select name="dataLoop">
+              <option value="yes">예</option>
+              <option value="no">아니오</option>
+            </select>
+          </label>
+          <label>Ecosystem lock-in 존재
+            <select name="lockin">
+              <option value="yes">예</option>
+              <option value="no">아니오</option>
+            </select>
+          </label>
+          <label>승인/롤아웃 민감도
+            <select name="rollout">
+              <option value="high">높음</option>
+              <option value="medium">중간</option>
+              <option value="low">낮음</option>
+            </select>
+          </label>
+          <label>경쟁사 실행지표 점수 (1-10)<input name="peerScore" type="number" min="1" max="10" step="1" required /></label>
+        </form>
+
+        <div class="actions">
+          <button id="generate" class="primary-btn" type="button">리포트 생성</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>출력 (단일 코드블록)</h2>
+        <pre id="output">```\n리포트가 여기에 생성됩니다.\n```</pre>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
