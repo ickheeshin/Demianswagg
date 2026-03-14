@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jarvis Office Colony - RimWorld Style</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #12151d;
+        --panel: #1b212c;
+        --line: #3a4456;
+        --text: #d7deea;
+        --ok: #79f29d;
+        --warn: #ffbe57;
+        --accent: #70d6ff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Press Start 2P", "DungGeunMo", "Noto Sans KR", monospace;
+        background: radial-gradient(circle at 10% 0%, #26344f, var(--bg));
+        color: var(--text);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 12px;
+        min-height: 100vh;
+        padding: 12px;
+      }
+      .panel {
+        background: color-mix(in srgb, var(--panel) 90%, #000);
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      h1, h2, h3 { margin: 0 0 10px; font-size: 14px; letter-spacing: .5px; }
+      p { margin: 0 0 10px; font-size: 11px; line-height: 1.5; }
+      label { font-size: 10px; opacity: .9; }
+      input, select, button {
+        width: 100%;
+        margin: 4px 0 8px;
+        padding: 8px;
+        border-radius: 4px;
+        border: 2px solid #3a4456;
+        background: #111827;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 10px;
+      }
+      button { cursor: pointer; }
+      button:hover { border-color: var(--accent); }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .room-wrap { position: relative; }
+      #room {
+        width: 100%;
+        height: 87vh;
+        border: 2px solid #4a5b78;
+        border-radius: 8px;
+        image-rendering: pixelated;
+        background: #0b1220;
+      }
+      .hud {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        display: flex;
+        gap: 6px;
+      }
+      .chip {
+        font-size: 9px;
+        padding: 4px 8px;
+        border: 1px solid #506080;
+        background: rgba(10, 15, 28, .84);
+        border-radius: 999px;
+      }
+      .agent-list, .logs {
+        border-top: 1px dashed #46546f;
+        margin-top: 8px;
+        padding-top: 8px;
+        max-height: 190px;
+        overflow: auto;
+      }
+      .agent-item {
+        font-size: 10px;
+        margin-bottom: 6px;
+        border: 1px solid #3a4456;
+        background: #111827;
+        border-radius: 4px;
+        padding: 6px;
+        line-height: 1.5;
+      }
+      .ok { color: var(--ok); }
+      .idle { color: var(--warn); }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel">
+        <h1>JARVIS OFFICE COLONY</h1>
+        <p>
+          림월드 감성으로 재구성된 오피스 씬입니다. 캐릭터(폰)들이 방 안을 자유롭게 이동하고,
+          작업 지시 시 같은 공간에서 모여 일하며 책상에 착석합니다.
+        </p>
+
+        <h3>TASK CONSOLE</h3>
+        <label>TITLE</label>
+        <input id="taskTitle" placeholder="예: 밈코인 급등락 브리핑" />
+
+        <div class="row">
+          <div>
+            <label>CATEGORY</label>
+            <select id="taskCategory">
+              <option value="investment">investment</option>
+              <option value="coin">coin</option>
+              <option value="memecoin">memecoin</option>
+            </select>
+          </div>
+          <div>
+            <label>PRIORITY</label>
+            <input id="taskPriority" type="number" min="1" max="5" value="3" />
+          </div>
+        </div>
+
+        <button id="addTaskBtn">+ ADD TASK</button>
+        <button id="startBtn">▶ WORK MODE</button>
+        <button id="meetingBtn">◎ BRIEFING MODE</button>
+        <button id="idleBtn">■ IDLE ROAM MODE</button>
+        <button id="growthBtn">▲ GROWTH CYCLE</button>
+
+        <div class="agent-list" id="agentList"></div>
+        <div class="logs" id="logs"></div>
+      </aside>
+
+      <main class="panel room-wrap">
+        <div class="hud">
+          <span class="chip">RIMWORLD STYLE</span>
+          <span class="chip">6 PAWNS</span>
+          <span class="chip">SIT ONLY WHEN WORKING</span>
+        </div>
+        <canvas id="room"></canvas>
+      </main>
+    </div>
+
+    <script>
+      const TILE = 24;
+      const room = document.getElementById("room");
+      const ctx = room.getContext("2d");
+      const logsEl = document.getElementById("logs");
+      const agentListEl = document.getElementById("agentList");
+      const taskQueue = [];
+
+      const world = {
+        walls: [],
+        desks: [],
+        seats: [],
+        briefing: { x: 0, y: 0, r: 60 },
+      };
+
+      const traits = ["분석형", "공격형", "보수형", "탐색형", "전략형", "실행형"];
+      const agents = Array.from({ length: 6 }, (_, i) => ({
+        id: `agent_${String(i + 1).padStart(2, "0")}`,
+        name: `Pawn-${i + 1}`,
+        role: "TBD",
+        personality: traits[i],
+        creativity: "independent",
+        working: false,
+        seated: false,
+        mode: "idle",
+        task: null,
+        x: 120 + i * 20,
+        y: 100 + i * 18,
+        targetX: 200,
+        targetY: 140,
+        speed: 1.2 + Math.random() * .8,
+        color: `hsl(${i * 55 + 20} 80% 60%)`
+      }));
+
+      const log = (msg) => {
+        const div = document.createElement("div");
+        div.textContent = `• ${msg}`;
+        logsEl.prepend(div);
+      };
+
+      function resize() {
+        room.width = room.clientWidth;
+        room.height = room.clientHeight;
+        buildMap();
+      }
+
+      function buildMap() {
+        world.walls = [];
+        const w = room.width;
+        const h = room.height;
+
+        // 테두리 벽
+        for (let x = 0; x < w; x += TILE) {
+          world.walls.push({ x, y: 0, w: TILE, h: TILE });
+          world.walls.push({ x, y: h - TILE, w: TILE, h: TILE });
+        }
+        for (let y = TILE; y < h - TILE; y += TILE) {
+          world.walls.push({ x: 0, y, w: TILE, h: TILE });
+          world.walls.push({ x: w - TILE, y, w: TILE, h: TILE });
+        }
+
+        world.desks = [];
+        world.seats = [];
+        const cols = 3;
+        const sx = w / (cols + 1);
+        const sy = h * 0.68;
+
+        for (let i = 0; i < 6; i++) {
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          const x = sx * (col + 1);
+          const y = sy + row * 120;
+          world.desks.push({ x, y, w: 92, h: 48 });
+          world.seats.push({ x, y: y + 36 });
+        }
+
+        world.briefing = { x: w * .5, y: h * .35, r: 74 };
+      }
+
+      function setIdleTarget(agent) {
+        agent.targetX = TILE * 2 + Math.random() * (room.width - TILE * 4);
+        agent.targetY = TILE * 2 + Math.random() * (room.height - TILE * 5);
+      }
+
+      function setSeatTarget(agent, idx) {
+        const seat = world.seats[idx % world.seats.length];
+        agent.targetX = seat.x;
+        agent.targetY = seat.y;
+      }
+
+      function setBriefingTarget(agent, idx) {
+        const angle = (Math.PI * 2 / agents.length) * idx;
+        agent.targetX = world.briefing.x + Math.cos(angle) * (world.briefing.r - 14);
+        agent.targetY = world.briefing.y + Math.sin(angle) * (world.briefing.r - 14);
+      }
+
+      function addTask() {
+        const title = document.getElementById("taskTitle").value.trim();
+        const category = document.getElementById("taskCategory").value;
+        const priority = Number(document.getElementById("taskPriority").value || 1);
+        if (!title) return log("작업 제목을 입력하세요.");
+        taskQueue.push({ title, category, priority });
+        log(`TASK QUEUED: ${title} (${category}, p${priority})`);
+        document.getElementById("taskTitle").value = "";
+      }
+
+      function startWork() {
+        if (!taskQueue.length) return log("작업 큐가 비어있습니다.");
+        const ordered = [...taskQueue].sort((a, b) => b.priority - a.priority);
+
+        agents.forEach((a) => {
+          a.working = false;
+          a.seated = false;
+          a.task = null;
+        });
+
+        ordered.forEach((task, idx) => {
+          const a = agents[idx % agents.length];
+          a.task = task;
+          a.working = true;
+          a.seated = true;
+          a.mode = "working";
+          setSeatTarget(a, idx);
+          log(`[${a.id}] ${task.title} 시작 → desk 착석`);
+        });
+
+        agents.forEach((a, idx) => {
+          if (!a.working) {
+            a.mode = "support";
+            a.seated = false;
+            setBriefingTarget(a, idx);
+          }
+        });
+
+        taskQueue.length = 0;
+        renderAgentPanel();
+      }
+
+      function briefingMode() {
+        agents.forEach((a, idx) => {
+          a.mode = "briefing";
+          a.working = true;
+          a.seated = false;
+          setBriefingTarget(a, idx);
+        });
+        log("전원 브리핑: 중앙 공간 집결");
+        renderAgentPanel();
+      }
+
+      function idleMode() {
+        agents.forEach((a) => {
+          a.mode = "idle";
+          a.working = false;
+          a.seated = false;
+          a.task = null;
+          setIdleTarget(a);
+          log(`[${a.id}] idle roam`);
+        });
+        renderAgentPanel();
+      }
+
+      function growthCycle() {
+        agents.forEach((a) => log(`[${a.id}] 성장: ${a.personality} + ${a.creativity}`));
+      }
+
+      function moveAgent(a) {
+        const dx = a.targetX - a.x;
+        const dy = a.targetY - a.y;
+        const d = Math.hypot(dx, dy);
+        if (d < 8) {
+          if (a.mode === "idle" && Math.random() < 0.018) setIdleTarget(a);
+          return;
+        }
+        a.x += (dx / d) * a.speed;
+        a.y += (dy / d) * a.speed;
+      }
+
+      function drawTiles() {
+        for (let y = 0; y < room.height; y += TILE) {
+          for (let x = 0; x < room.width; x += TILE) {
+            const dark = ((x / TILE + y / TILE) % 2 === 0);
+            ctx.fillStyle = dark ? "#192231" : "#1d2839";
+            ctx.fillRect(x, y, TILE, TILE);
+          }
+        }
+      }
+
+      function drawWorld() {
+        drawTiles();
+
+        // 벽
+        world.walls.forEach((w) => {
+          ctx.fillStyle = "#45536a";
+          ctx.fillRect(w.x, w.y, w.w, w.h);
+          ctx.strokeStyle = "#2f3a4d";
+          ctx.strokeRect(w.x, w.y, w.w, w.h);
+        });
+
+        // 브리핑 원형 구역
+        ctx.fillStyle = "rgba(82, 179, 255, 0.12)";
+        ctx.strokeStyle = "rgba(112, 214, 255, .5)";
+        ctx.beginPath();
+        ctx.arc(world.briefing.x, world.briefing.y, world.briefing.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // 책상/의자
+        world.desks.forEach((d, i) => {
+          ctx.fillStyle = "#4f5d75";
+          ctx.fillRect(d.x - d.w / 2, d.y - d.h / 2, d.w, d.h);
+          ctx.strokeStyle = "#2e394c";
+          ctx.strokeRect(d.x - d.w / 2, d.y - d.h / 2, d.w, d.h);
+
+          const seat = world.seats[i];
+          ctx.fillStyle = "#2d3748";
+          ctx.fillRect(seat.x - 14, seat.y + 8, 28, 12);
+        });
+
+        // 폰 (림월드 느낌: 머리+몸체 단순 도트)
+        agents.forEach((a) => {
+          moveAgent(a);
+
+          // 그림자
+          ctx.fillStyle = "rgba(0,0,0,.25)";
+          ctx.fillRect(a.x - 9, a.y + 9, 18, 5);
+
+          // 몸체
+          ctx.fillStyle = a.color;
+          ctx.fillRect(a.x - 7, a.y - 6, 14, 16);
+          // 머리
+          ctx.fillStyle = "#e7c8a0";
+          ctx.fillRect(a.x - 5, a.y - 12, 10, 7);
+
+          // 상태 링
+          ctx.strokeStyle = a.seated ? "#79f29d" : "#ffbe57";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(a.x - 10, a.y - 15, 20, 28);
+
+          // 아이디
+          ctx.fillStyle = "#e2e8f0";
+          ctx.font = "10px monospace";
+          ctx.fillText(a.id, a.x - 18, a.y - 18);
+        });
+      }
+
+      function renderAgentPanel() {
+        agentListEl.innerHTML = agents.map((a) => `
+          <div class="agent-item">
+            <strong>${a.id}</strong> ${a.name}<br/>
+            성격: ${a.personality} / 창의: ${a.creativity}<br/>
+            상태: <span class="${a.seated ? "ok" : "idle"}">${a.working ? "업무중" : "대기"} · ${a.seated ? "착석" : "자유이동/기립"}</span>
+          </div>
+        `).join("");
+      }
+
+      function tick() {
+        ctx.clearRect(0, 0, room.width, room.height);
+        drawWorld();
+        requestAnimationFrame(tick);
+      }
+
+      window.addEventListener("resize", resize);
+      document.getElementById("addTaskBtn").onclick = addTask;
+      document.getElementById("startBtn").onclick = startWork;
+      document.getElementById("meetingBtn").onclick = briefingMode;
+      document.getElementById("idleBtn").onclick = idleMode;
+      document.getElementById("growthBtn").onclick = growthCycle;
+
+      resize();
+      agents.forEach(setIdleTarget);
+      renderAgentPanel();
+      log("RimWorld 스타일 UI 로드 완료");
+      tick();
+    </script>
+  </body>
+</html>
