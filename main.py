@@ -10,6 +10,10 @@ def demo() -> None:
         Task(title="고위험 포지션 승인 요청", category="investment", priority=4, important=True, requires_approval=True),
     ]
 
+    print("=== TEAM GREETING ===")
+    for line in sim.run_team_greeting():
+        print(line)
+
     print("=== WORK MODE ===")
     for line in sim.assign_tasks(tasks):
         print(line)

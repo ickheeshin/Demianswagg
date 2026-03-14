@@ -128,6 +128,7 @@
         <button id="meetingBtn">◎ BRIEFING MODE</button>
         <button id="idleBtn">■ IDLE ROAM MODE</button>
         <button id="growthBtn">▲ GROWTH CYCLE</button>
+        <button id="greetBtn">👋 HELLO GREETING (STANDING)</button>
 
         <div class="agent-list" id="agentList"></div>
         <div class="logs" id="logs"></div>
@@ -161,8 +162,8 @@
       const traits = ["분석형", "공격형", "보수형", "탐색형", "전략형", "실행형"];
       const agents = Array.from({ length: 6 }, (_, i) => ({
         id: `agent_${String(i + 1).padStart(2, "0")}`,
-        name: `Pawn-${i + 1}`,
-        role: "TBD",
+        name: ["보운","리모","TBD-3","TBD-4","TBD-5","TBD-6"][i],
+        role: ["Team Lead","Crypto/Memecoin Specialist","Macro Analyst","Risk Controller","Execution Operator","Research Synthesizer"][i],
         personality: traits[i],
         creativity: "independent",
         working: false,
@@ -174,7 +175,9 @@
         targetX: 200,
         targetY: 140,
         speed: 1.2 + Math.random() * .8,
-        color: `hsl(${i * 55 + 20} 80% 60%)`
+        color: `hsl(${i * 55 + 20} 80% 60%)`,
+        languages: ["ko", "en"],
+        speech: ""
       }));
 
       const log = (msg) => {
@@ -257,6 +260,7 @@
           a.working = false;
           a.seated = false;
           a.task = null;
+          a.speech = "";
         });
 
         ordered.forEach((task, idx) => {
@@ -298,6 +302,7 @@
           a.working = false;
           a.seated = false;
           a.task = null;
+          a.speech = "";
           setIdleTarget(a);
           log(`[${a.id}] idle roam`);
         });
@@ -306,6 +311,19 @@
 
       function growthCycle() {
         agents.forEach((a) => log(`[${a.id}] 성장: ${a.personality} + ${a.creativity}`));
+      }
+
+      function greetingMode() {
+        agents.forEach((a, idx) => {
+          a.mode = "greeting";
+          a.working = false;
+          a.seated = false;
+          a.task = null;
+          a.speech = "안녕하세요 / Hello";
+          setBriefingTarget(a, idx);
+        });
+        log("전원 인사: 안녕하세요 / Hello");
+        renderAgentPanel();
       }
 
       function moveAgent(a) {
@@ -385,6 +403,18 @@
           ctx.fillStyle = "#e2e8f0";
           ctx.font = "10px monospace";
           ctx.fillText(a.id, a.x - 18, a.y - 18);
+
+          if (a.speech) {
+            const bw = 92;
+            const bh = 20;
+            ctx.fillStyle = "rgba(10,15,25,.88)";
+            ctx.fillRect(a.x - bw / 2, a.y - 42, bw, bh);
+            ctx.strokeStyle = "#70d6ff";
+            ctx.strokeRect(a.x - bw / 2, a.y - 42, bw, bh);
+            ctx.fillStyle = "#d7deea";
+            ctx.font = "9px monospace";
+            ctx.fillText(a.speech, a.x - 40, a.y - 29);
+          }
         });
       }
 
@@ -393,6 +423,7 @@
           <div class="agent-item">
             <strong>${a.id}</strong> ${a.name}<br/>
             성격: ${a.personality} / 창의: ${a.creativity}<br/>
+            언어: ${a.languages.join("/")}<br/>
             상태: <span class="${a.seated ? "ok" : "idle"}">${a.working ? "업무중" : "대기"} · ${a.seated ? "착석" : "자유이동/기립"}</span>
           </div>
         `).join("");
@@ -410,6 +441,7 @@
       document.getElementById("meetingBtn").onclick = briefingMode;
       document.getElementById("idleBtn").onclick = idleMode;
       document.getElementById("growthBtn").onclick = growthCycle;
+      document.getElementById("greetBtn").onclick = greetingMode;
 
       resize();
       agents.forEach(setIdleTarget);

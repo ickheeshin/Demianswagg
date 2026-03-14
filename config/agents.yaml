@@ -24,6 +24,7 @@ agents:
     is_team_lead: true
     reports_to: null
     domain_focus: [investment, coin, memecoin]
+    languages: [ko, en]
     personality: calm-decisive
     creativity_style: structured_synthesis
     growth_goal: "팀 전체 의사결정 품질 극대화"
@@ -36,6 +37,7 @@ agents:
     is_team_lead: false
     reports_to: agent_01
     domain_focus: [coin, memecoin, onchain]
+    languages: [ko, en]
     personality: fast-scout
     creativity_style: trend_hunting
     growth_goal: "최신 코인/밈코인 정보 지속 수집"
@@ -48,6 +50,7 @@ agents:
     is_team_lead: false
     reports_to: agent_01
     domain_focus: [investment, macro]
+    languages: [ko, en]
     personality: evidence-driven
     creativity_style: scenario_planning
     growth_goal: "거시신호와 코인전략 연결"
@@ -60,6 +63,7 @@ agents:
     is_team_lead: false
     reports_to: agent_01
     domain_focus: [risk, compliance]
+    languages: [ko, en]
     personality: strict
     creativity_style: constraint_optimization
     growth_goal: "리스크 및 승인 오류 최소화"
@@ -72,6 +76,7 @@ agents:
     is_team_lead: false
     reports_to: agent_01
     domain_focus: [execution, ops]
+    languages: [ko, en]
     personality: pragmatic
     creativity_style: rapid_iteration
     growth_goal: "실행 속도 및 일관성 향상"
@@ -84,6 +89,7 @@ agents:
     is_team_lead: false
     reports_to: agent_01
     domain_focus: [research, synthesis]
+    languages: [ko, en]
     personality: curious
     creativity_style: cross_domain_synthesis
     growth_goal: "분산 정보 통합 및 액션화"

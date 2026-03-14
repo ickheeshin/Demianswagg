@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 
 @dataclass
@@ -22,6 +22,7 @@ class Agent:
     creativity_style: str
     growth_goal: str
     expertise: List[str] = field(default_factory=list)
+    languages: List[str] = field(default_factory=lambda: ["ko", "en"])
     reports_to: Optional[str] = None
     is_team_lead: bool = False
     is_working: bool = False
@@ -39,6 +40,9 @@ class Agent:
         self.is_working = False
         self.is_seated = False
         return f"[{self.agent_id}] {self.name} is now idle and standing."
+
+    def greeting(self) -> str:
+        return f"[{self.agent_id}] {self.name}: 안녕하세요! Hello!"
 
     def update_from_best_sources(self) -> str:
         self.knowledge_score = round(self.knowledge_score + 0.1, 2)
@@ -66,9 +70,6 @@ class OfficeSimulation:
     agents: List[Agent] = field(default_factory=list)
     user_name: str = "Owner"
 
-    def _agent_map(self) -> Dict[str, Agent]:
-        return {agent.agent_id: agent for agent in self.agents}
-
     def _team_lead(self) -> Agent:
         for agent in self.agents:
             if agent.is_team_lead:
@@ -87,7 +88,6 @@ class OfficeSimulation:
             logs.append(assignee.start_task(task))
             if task.important or task.requires_approval:
                 logs.extend(self._report_chain_for_task(assignee, task))
-
         return logs
 
     def _report_chain_for_task(self, assignee: Agent, task: Task) -> List[str]:
@@ -101,8 +101,7 @@ class OfficeSimulation:
             )
 
         logs.append(
-            f"[{lead.agent_id}] {lead.name} reviews/filters the report and escalates to "
-            f"{self.user_name}."
+            f"[{lead.agent_id}] {lead.name} reviews/filters the report and escalates to {self.user_name}."
         )
 
         if task.requires_approval:
@@ -112,15 +111,14 @@ class OfficeSimulation:
 
         return logs
 
+    def run_team_greeting(self) -> List[str]:
+        return [agent.greeting() for agent in self.agents]
+
     def run_peer_dialogue_cycle(self) -> List[str]:
         logs: List[str] = []
-        if len(self.agents) < 2:
-            return logs
-
         for idx, speaker in enumerate(self.agents):
             listener = self.agents[(idx + 1) % len(self.agents)]
             logs.append(speaker.share_insight(listener))
-
         return logs
 
     def run_market_intel_cycle(self) -> List[str]:
@@ -129,8 +127,6 @@ class OfficeSimulation:
 
         for agent in self.agents:
             logs.append(agent.update_from_best_sources())
-
-            # 리모: 밈코인/크립토 전문 최신 정보 수집 -> 팀장 보고
             if agent.name == "리모":
                 logs.append(
                     f"[{agent.agent_id}] 리모 submits curated memecoin/crypto opportunities to "
@@ -139,7 +135,6 @@ class OfficeSimulation:
                 logs.append(
                     f"[{lead.agent_id}] {lead.name} filters Rimo's intel and reports key points to {self.user_name}."
                 )
-
         return logs
 
     def set_idle_mode(self) -> List[str]:
@@ -163,6 +158,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="structured synthesis",
             growth_goal="maximize team quality and decision reliability",
             expertise=["investment", "portfolio", "risk"],
+            languages=["ko", "en"],
             is_team_lead=True,
         ),
         Agent(
@@ -173,6 +169,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="trend hunting",
             growth_goal="track real-time crypto/memecoin alpha",
             expertise=["coin", "memecoin", "onchain"],
+            languages=["ko", "en"],
             reports_to="agent_01",
         ),
         Agent(
@@ -183,6 +180,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="scenario planning",
             growth_goal="connect macro signals to coin strategy",
             expertise=["investment", "macro"],
+            languages=["ko", "en"],
             reports_to="agent_01",
         ),
         Agent(
@@ -193,6 +191,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="constraint optimization",
             growth_goal="reduce drawdown and approval errors",
             expertise=["risk", "compliance"],
+            languages=["ko", "en"],
             reports_to="agent_01",
         ),
         Agent(
@@ -203,6 +202,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="rapid iteration",
             growth_goal="improve execution speed and consistency",
             expertise=["execution", "ops"],
+            languages=["ko", "en"],
             reports_to="agent_01",
         ),
         Agent(
@@ -213,6 +213,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="cross-domain synthesis",
             growth_goal="merge scattered intel into clear action",
             expertise=["research", "synthesis"],
+            languages=["ko", "en"],
             reports_to="agent_01",
         ),
     ]
