@@ -13,7 +13,7 @@
 - `src/office_simulation.py`: 명령기반 비평/수정/최신모델 업데이트 코어
 - `main.py`: CLI 데모
 - `config/agents.yaml`: 정책/에이전트 규칙
-- `web/index.html`: 오피스풍 인터랙티브 UI
+- `web/index.html`: 림월드풍 회의실/캐릭터 인터랙티브 UI
 
 ## CLI 실행
 ```bash
@@ -31,3 +31,6 @@ python3 -m http.server 8000
 - 불만의 강한 문제 제기 → 조시 즉시 수정 루프
 - 라운드마다 `ui_version`, `ux_quality` 증가
 - 두 에이전트의 `model_rev`와 `learning` 지속 증가
+
+- 림월드 스타일 회의실(타일 바닥/중앙 타원 테이블/창문/식물/책상+의자)
+- 폰(pawn) 느낌 캐릭터 실루엣(머리/몸통/그림자/말풍선)로 개선

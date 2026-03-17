@@ -3,37 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UX Iteration Studio | Bulman Command Loop</title>
+    <title>RimOffice UX Command Deck</title>
     <style>
-      :root { --bg:#0b1324; --panel:#17233b; --line:#35507a; --text:#e8f0ff; --muted:#9eb2d3; --accent:#6ee7ff; --bad:#ff7b7b; --good:#8df6b3; }
-      *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 10% 0,#29406a,var(--bg));color:var(--text);font-family:Inter,Pretendard,sans-serif}
+      :root{
+        --bg:#0a101b;--panel:#141d2b;--line:#2f4765;--text:#e8f0ff;--muted:#9fb2cc;
+        --accent:#68d6ff;--danger:#ff8f8f;--ok:#8ff7b8;
+      }
+      *{box-sizing:border-box}
+      body{margin:0;background:radial-gradient(circle at 10% 0,#1f2f47,var(--bg));color:var(--text);font-family:Inter,Pretendard,sans-serif}
       .wrap{display:grid;grid-template-columns:390px 1fr;gap:12px;padding:12px;height:100vh}
-      .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
-      button{background:#1d2c48;color:var(--text);border:1px solid var(--line);padding:8px 10px;border-radius:9px;cursor:pointer}
+      .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+      .sub{margin:0;color:var(--muted);font-size:12px;line-height:1.4}
+      textarea{width:100%;min-height:70px;background:#0c1524;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px}
+      button{background:#1b2a40;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:8px 10px;cursor:pointer}
       button:hover{border-color:var(--accent)}
-      textarea{width:100%;background:#0f1a30;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px;min-height:70px}
-      .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-      .kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-      .card{border:1px solid var(--line);border-radius:10px;padding:8px;background:#13203a}
-      .logs,.agents{height:180px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px;background:#0f1a30;font-size:12px}
-      .canvas-wrap{background:#0f1a30;border:1px solid var(--line);border-radius:14px;padding:6px}
-      canvas{width:100%;height:calc(100vh - 26px);display:block;border-radius:10px;background:#1b2942}
-      .sub{color:var(--muted);font-size:12px;margin:0}
-      .agent-badge{display:inline-block;padding:2px 6px;border-radius:999px;font-size:11px;border:1px solid var(--line);margin-right:4px}
+      .row,.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .card{border:1px solid var(--line);border-radius:10px;padding:8px;background:#101b2e}
+      .agents,.logs{height:184px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px;background:#0c1524;font-size:12px}
+      .badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 6px;font-size:11px;margin-right:4px}
+      .canvas-wrap{padding:6px;background:#0c1524;border:1px solid var(--line);border-radius:14px}
+      canvas{width:100%;height:calc(100vh - 26px);display:block;border-radius:10px;background:#1f2e47}
     </style>
   </head>
   <body>
     <div class="wrap">
       <section class="panel">
-        <h2 style="margin:0">UX Iteration Studio</h2>
-        <p class="sub">사용자 명령 시 불만이 강한 문제를 탐색하고 조시가 즉시 수정합니다. 두 에이전트 모두 매 라운드 최신 모델로 업데이트됩니다.</p>
-        <textarea id="commandInput">UI 전체 점검하고 미친듯이 문제 찾아서 조시가 바로 고치게 해</textarea>
+        <h2 style="margin:0">RimOffice UX Command Deck</h2>
+        <p class="sub">림월드 감성의 회의실/캐릭터 비주얼로 개선. 불만은 극단적 UX 비평만 수행하고 조시는 즉시 고칩니다.</p>
+        <textarea id="commandInput">회의실과 캐릭터 외형 전부 재설계하고 몰입감 높여</textarea>
         <button id="commandBtn">⚡ Command Bulman</button>
         <div class="row">
           <button id="greetBtn">👋 Standing Greeting</button>
           <button id="idleBtn">■ Idle Roam</button>
         </div>
-
         <div class="kpi">
           <div class="card"><div class="sub">ui_version</div><b id="v">v1</b></div>
           <div class="card"><div class="sub">ux_quality</div><b id="q">40.0</b></div>
@@ -41,8 +43,7 @@
         <div class="agents" id="agents"></div>
         <div class="logs" id="logs"></div>
       </section>
-
-      <section class="canvas-wrap"><canvas id="office" width="1120" height="760"></canvas></section>
+      <section class="canvas-wrap"><canvas id="office" width="1200" height="780"></canvas></section>
     </div>
 
     <script>
@@ -52,89 +53,173 @@
       const qEl = document.getElementById('q');
       const canvas = document.getElementById('office');
       const ctx = canvas.getContext('2d');
+      let tickCount = 0;
 
-      const state = { uiVersion:1, quality:40.0 };
+      const state = { uiVersion: 1, quality: 40.0 };
       const agents = [
-        { id:'agent_01', name:'불만', role:'Senior UX Critic', persona:'always-negative / command-driven', x:240, y:500, tx:320, ty:500, color:'#ff8a8a', speech:'', learning:1.0, modelRev:1 },
-        { id:'agent_02', name:'조시', role:'UX UI Fixer', persona:'feedback-first rapid fixer', x:430, y:520, tx:540, ty:520, color:'#8df6b3', speech:'', learning:1.0, modelRev:1 },
+        { id:'agent_01', name:'불만', role:'Senior UX Critic', persona:'always-negative / expert', x:340, y:540, tx:340, ty:540, color:'#ff8c8c', speech:'', learning:1.0, modelRev:1 },
+        { id:'agent_02', name:'조시', role:'UX UI Fixer', persona:'feedback-first fixer', x:520, y:560, tx:520, ty:560, color:'#8ff7b8', speech:'', learning:1.0, modelRev:1 },
       ];
 
+      const critiques = [
+        '치명적 문제: 회의실 포컬 포인트가 없어 협업 몰입이 깨집니다.',
+        '치명적 문제: 캐릭터 실루엣 가독성이 낮아 상태 인지가 느립니다.',
+        '치명적 문제: 시각 깊이감이 약해 게임 공간으로 느껴지지 않습니다.',
+        '치명적 문제: 색 대비 계층이 약해 행동 우선순위가 흐립니다.'
+      ];
+      const fixes = [
+        '조치: 메인 회의 테이블/조명/소품 재배치로 공간 중심축 확립.',
+        '조치: 폰 스타일 실루엣(머리/몸통/그림자)로 캐릭터 가독성 강화.',
+        '조치: 타일, 그림자, 하이라이트로 층위감 및 공간감 증대.',
+        '조치: 강조색 토큰 및 인터랙션 대비 재설계 완료.'
+      ];
+
+      const room = {
+        x:70, y:60, w:1060, h:650,
+        table:{x:600, y:330, rx:180, ry:94},
+        desks:[{x:190,y:510,w:190,h:90},{x:820,y:510,w:190,h:90}],
+        chairs:[{x:250,y:612},{x:320,y:612},{x:875,y:612},{x:950,y:612}],
+        plants:[{x:110,y:120},{x:1080,y:120},{x:110,y:650},{x:1080,y:650}],
+      };
+
       function log(line){ logsEl.innerHTML = `${new Date().toLocaleTimeString()} | ${line}<br>` + logsEl.innerHTML; }
-      function updateKpi(){ vEl.textContent=`v${state.uiVersion}`; qEl.textContent=state.quality.toFixed(1); }
-      function renderAgentCards(){
-        agentsEl.innerHTML = agents.map(a => `<div class='card'><b>${a.name}</b> <span class='agent-badge'>ko/en</span><span class='agent-badge'>unassigned</span><div class='sub'>${a.role}</div><div class='sub'>${a.persona}</div><div class='sub'>model_rev=r${a.modelRev} | learning=${a.learning.toFixed(2)}</div></div>`).join('');
+      function updateKpi(){ vEl.textContent = `v${state.uiVersion}`; qEl.textContent = state.quality.toFixed(1); }
+      function renderCards(){
+        agentsEl.innerHTML = agents.map(a=>`<div class='card'><b>${a.name}</b> <span class='badge'>ko/en</span><span class='badge'>r${a.modelRev}</span><div class='sub'>${a.role}</div><div class='sub'>${a.persona}</div><div class='sub'>learning=${a.learning.toFixed(2)}</div></div>`).join('');
       }
 
-      function idleTargets(){ agents.forEach(a=>{ a.tx=120+Math.random()*860; a.ty=160+Math.random()*500; a.speech=''; }); log('대기 모드: 자유 이동'); }
-      function greeting(){ const cx=560, cy=310; agents.forEach((a,i)=>{ a.tx=cx+(i?80:-80); a.ty=cy; a.speech='안녕하세요 / Hello'; }); log('전원 기립 인사 완료'); }
-
-      function updateModelsEachRound(){
-        agents.forEach((a)=>{
+      function idleTargets(){
+        agents.forEach(a=>{ a.tx = room.x+90+Math.random()*(room.w-180); a.ty = room.y+90+Math.random()*(room.h-180); a.speech=''; });
+        log('대기 모드: 자유 이동');
+      }
+      function greeting(){
+        agents[0].tx = room.table.x-85; agents[0].ty = room.table.y+5;
+        agents[1].tx = room.table.x+85; agents[1].ty = room.table.y+5;
+        agents.forEach(a=>a.speech='안녕하세요 / Hello');
+        log('전원 기립 인사: 회의 테이블 앞 집결');
+      }
+      function updateModels(){
+        agents.forEach(a=>{
           a.modelRev += 1;
-          a.learning = Math.min(10.0, a.learning + 0.11);
-          log(`[${a.id}] ${a.name} 최신 모델 업데이트 (r${a.modelRev}, learning=${a.learning.toFixed(2)})`);
+          a.learning = Math.min(10, a.learning + 0.11);
+          log(`[${a.id}] ${a.name} 최신 모델 동기화 (r${a.modelRev}, learning=${a.learning.toFixed(2)})`);
         });
       }
-
-      function commandBulman(rounds=3){
-        const command = document.getElementById('commandInput').value.trim();
-        const critic = agents[0], fixer = agents[1];
-        if(!command){ log('명령을 입력하세요.'); return; }
-
-        log(`[COMMAND] YOU: ${command}`);
-        log('[ACK] 불만: 명령 수신. 즉시 고강도 문제 탐색 시작.');
-
-        const critiques = [
-          '치명적 문제: 정보 구조가 사용자 목표 흐름을 방해합니다.',
-          '치명적 문제: 피드백 밀도가 낮아 오작동으로 오해될 수준입니다.',
-          '치명적 문제: 시각 계층이 불안정해 인지 비용이 과도합니다.'
-        ];
-        const fixes = [
-          '조치: 핵심 CTA 상단 고정 + 정보 위계 단일화 완료.',
-          '조치: 성공/실패 반응 피드백을 즉시 표출하도록 개선 완료.',
-          '조치: 타이포/간격/컬러 대비 토큰 표준화 완료.'
-        ];
-
+      function commandBulman(rounds=4){
+        const cmd = document.getElementById('commandInput').value.trim();
+        if(!cmd){ log('명령을 입력하세요.'); return; }
+        log(`[COMMAND] YOU: ${cmd}`);
+        log('[ACK] 불만: 즉시 과격한 UX 결함 탐지 시작.');
         for(let i=0;i<rounds;i++){
-          critic.speech='문제 탐지'; fixer.speech='즉시 수정';
+          agents[0].speech='문제 탐지'; agents[1].speech='즉시 수정';
           log(`[ROUND ${i+1}] [불만] ${critiques[i%critiques.length]}`);
-          log(`[ROUND ${i+1}] [불만 -> 조시] 지금 바로 수정해.`);
+          log(`[ROUND ${i+1}] [불만 -> 조시] 변명 금지. 지금 고쳐.`);
           state.uiVersion += 1;
-          state.quality = Math.min(98, state.quality + 8.0);
+          state.quality = Math.min(99.5, state.quality + 8.3);
           log(`[ROUND ${i+1}] [조시] ${fixes[i%fixes.length]} | v${state.uiVersion} | quality=${state.quality.toFixed(1)}`);
-          updateModelsEachRound();
+          updateModels();
         }
-
-        critic.tx=430; critic.ty=300; fixer.tx=700; fixer.ty=330;
-        log('[REPORT] 조시 -> YOU: 불만 지시 반영 완료. 최신 모델 동기화 유지 중.');
-        updateKpi(); renderAgentCards();
+        agents[0].tx = room.table.x-120; agents[0].ty = room.table.y+20;
+        agents[1].tx = room.table.x+120; agents[1].ty = room.table.y+20;
+        log('[REPORT] 조시 -> YOU: 비평 반영 완료, 다음 지시 대기.');
+        updateKpi(); renderCards();
       }
 
+      function drawTiles(){
+        for(let x=room.x+10;x<room.x+room.w-10;x+=34){
+          for(let y=room.y+10;y<room.y+room.h-10;y+=34){
+            const odd = ((x+y)/34)%2;
+            ctx.fillStyle = odd? '#253b5e' : '#2a446c';
+            ctx.fillRect(x,y,30,30);
+          }
+        }
+      }
       function drawRoom(){
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle='#24395f'; ctx.fillRect(40,40,1040,680);
-        ctx.fillStyle='#1a2d4c'; for(let x=50;x<1070;x+=40){for(let y=50;y<700;y+=40){ctx.fillRect(x,y,32,32)}}
-        ctx.strokeStyle='#6a87b8'; ctx.lineWidth=6; ctx.strokeRect(40,40,1040,680);
-        ctx.fillStyle='#3b506f'; ctx.fillRect(180,520,160,80); ctx.fillRect(780,520,160,80);
-        ctx.fillStyle='#4d678a'; ctx.beginPath(); ctx.arc(560,310,90,0,Math.PI*2); ctx.fill();
+        const g = ctx.createLinearGradient(0,0,0,canvas.height);
+        g.addColorStop(0,'#263e64'); g.addColorStop(1,'#1b2b44');
+        ctx.fillStyle = g; ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.fillStyle = '#18263e';
+        ctx.fillRect(room.x,room.y,room.w,room.h);
+        drawTiles();
+
+        ctx.lineWidth = 8; ctx.strokeStyle = '#6e8fbe';
+        ctx.strokeRect(room.x, room.y, room.w, room.h);
+
+        ctx.fillStyle = '#3f5678';
+        ctx.fillRect(room.x+250,room.y+20,140,24);
+        ctx.fillRect(room.x+670,room.y+20,140,24);
+
+        room.plants.forEach(p=>{
+          ctx.fillStyle='#4c3a2e'; ctx.fillRect(p.x-8,p.y+18,16,14);
+          ctx.fillStyle='#6ecd8c'; ctx.beginPath(); ctx.arc(p.x,p.y+8,15,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle='#7fe6a6'; ctx.beginPath(); ctx.arc(p.x-7,p.y+3,8,0,Math.PI*2); ctx.fill();
+        });
+
+        room.desks.forEach(d=>{
+          ctx.fillStyle='#5f4b36'; ctx.fillRect(d.x,d.y,d.w,d.h);
+          ctx.fillStyle='#87694a'; ctx.fillRect(d.x+10,d.y+10,d.w-20,18);
+          ctx.fillStyle='#2a2f3f'; ctx.fillRect(d.x+22,d.y+24,44,28);
+        });
+        room.chairs.forEach(c=>{
+          ctx.fillStyle='#37465e'; ctx.fillRect(c.x-16,c.y-14,32,24);
+          ctx.fillStyle='#4f6587'; ctx.fillRect(c.x-16,c.y-24,32,10);
+        });
+
+        ctx.save();
+        ctx.translate(room.table.x, room.table.y);
+        ctx.fillStyle = '#4a3a2a';
+        ctx.beginPath(); ctx.ellipse(0,0,room.table.rx,room.table.ry,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#6d543a';
+        ctx.beginPath(); ctx.ellipse(0,-6,room.table.rx-18,room.table.ry-18,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#f0d796';
+        ctx.beginPath(); ctx.arc(0,0,12,0,Math.PI*2); ctx.fill();
+        ctx.restore();
       }
 
-      function drawAgent(a){
-        const dx=a.tx-a.x, dy=a.ty-a.y; const d=Math.hypot(dx,dy);
-        if(d>1.2){ a.x += (dx/d)*1.5; a.y += (dy/d)*1.5; }
-        ctx.fillStyle=a.color; ctx.beginPath(); ctx.arc(a.x,a.y,16,0,Math.PI*2); ctx.fill();
-        ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.strokeRect(a.x-10,a.y+14,20,14);
-        ctx.fillStyle='#fff'; ctx.font='12px sans-serif'; ctx.fillText(a.name,a.x-18,a.y-22);
-        if(a.speech){ ctx.fillStyle='rgba(10,20,38,.9)'; ctx.fillRect(a.x-50,a.y-54,110,20); ctx.fillStyle='#d9ecff'; ctx.fillText(a.speech,a.x-45,a.y-40); }
+      function drawPawn(a, i){
+        const dx = a.tx-a.x, dy = a.ty-a.y;
+        const d = Math.hypot(dx,dy);
+        if(d>1){ a.x += dx/d*1.45; a.y += dy/d*1.45; }
+        const bob = Math.sin((tickCount+i*8)/9)*1.5;
+
+        ctx.fillStyle = 'rgba(0,0,0,.35)';
+        ctx.beginPath(); ctx.ellipse(a.x, a.y+17, 14, 6, 0, 0, Math.PI*2); ctx.fill();
+
+        ctx.fillStyle = '#d9c7a4';
+        ctx.beginPath(); ctx.arc(a.x, a.y-13+bob, 8, 0, Math.PI*2); ctx.fill();
+
+        ctx.fillStyle = a.color;
+        ctx.beginPath();
+        ctx.moveTo(a.x-11,a.y+bob); ctx.lineTo(a.x+11,a.y+bob); ctx.lineTo(a.x+9,a.y+18+bob); ctx.lineTo(a.x-9,a.y+18+bob); ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = '#0d1220'; ctx.lineWidth = 2;
+        ctx.strokeRect(a.x-10,a.y+bob,20,18);
+        ctx.fillStyle = '#c8d9f0'; ctx.font='12px sans-serif'; ctx.fillText(a.name,a.x-16,a.y-28);
+
+        if(a.speech){
+          const w = 126, h = 22;
+          ctx.fillStyle='rgba(9,16,28,.92)';
+          ctx.fillRect(a.x-w/2,a.y-56,w,h);
+          ctx.strokeStyle='#4f6c95'; ctx.strokeRect(a.x-w/2,a.y-56,w,h);
+          ctx.fillStyle='#dcf0ff'; ctx.fillText(a.speech,a.x-w/2+7,a.y-41);
+        }
       }
 
-      function tick(){ drawRoom(); agents.forEach(drawAgent); requestAnimationFrame(tick); }
+      function tick(){
+        tickCount += 1;
+        drawRoom();
+        agents.forEach(drawPawn);
+        requestAnimationFrame(tick);
+      }
 
-      document.getElementById('commandBtn').onclick = () => commandBulman(3);
+      document.getElementById('commandBtn').onclick = () => commandBulman(4);
       document.getElementById('greetBtn').onclick = greeting;
       document.getElementById('idleBtn').onclick = idleTargets;
 
-      renderAgentCards(); updateKpi(); idleTargets(); tick();
+      renderCards(); updateKpi(); idleTargets(); tick();
     </script>
   </body>
 </html>
