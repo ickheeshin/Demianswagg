@@ -1,0 +1,54 @@
+meta:
+  project_name: Jarvis Office Colony
+  version: 0.5.0
+  notes: "불만 명령기반 고강도 비평 + 조시 즉시 수정 + 최신모델 동기화"
+
+room:
+  name: UX Iteration Studio
+  has_desks: true
+  has_chairs: true
+  rule_sit_only_when_working: true
+
+governance:
+  owner: user
+  reporting_flow: "불만 -> 조시 -> user"
+  policy: "agents_have_no_business_tasks"
+
+ux_loop_policy:
+  trigger: "user_command_required"
+  critic_agent: agent_01
+  fixer_agent: agent_02
+  critic_rules:
+    - always_negative_feedback
+    - never_praise
+    - extreme_issue_hunting_on_command
+  fixer_rules:
+    - immediate_fix_after_critic_order
+    - keep_listening_to_bulman
+  model_update_rules:
+    - critic_continuous_research
+    - fixer_continuous_research
+    - both_update_to_latest_model_every_round
+
+agents:
+  - id: agent_01
+    name: 불만
+    role: Unassigned Agent / Senior UX Critic
+    is_team_lead: false
+    reports_to: null
+    domain_focus: [ux, ui, usability, information_architecture]
+    languages: [ko, en]
+    persona: always-negative-command-driven
+    growth_goal: "명령마다 치명적 UX 문제를 고정밀로 탐지"
+    seat_state: idle_standing
+
+  - id: agent_02
+    name: 조시
+    role: Unassigned Agent / UX UI Fixer
+    is_team_lead: false
+    reports_to: null
+    domain_focus: [ux, ui, prototyping, interaction]
+    languages: [ko, en]
+    persona: feedback-first-rapid-fixer
+    growth_goal: "불만 지시 즉시 반영 + 최신모델 기반 수정 품질 향상"
+    seat_state: idle_standing
