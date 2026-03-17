@@ -17,6 +17,11 @@ governance:
   approval_flow: "general_agent -> team_lead -> user"
   important_info_flow: "general_agent -> team_lead -> user"
 
+external_learning:
+  source_repo: "https://github.com/666ghj/MiroFish.git"
+  fetch_status: "blocked_403"
+  adaptation_mode: "mirofish_fallback_playbook"
+
 knowledge_framework:
   key: sota_expectation_engine_v3_3
   owner_agents: [agent_01, agent_02]
@@ -36,6 +41,8 @@ agents:
     seat_state: idle_standing
     autonomy_level: high
     framework_memory: [sota_expectation_engine_v3_3]
+    swarm_role: alpha-scout
+    swarm_role: lead
 
   - id: agent_02
     name: 리모
@@ -64,6 +71,10 @@ agents:
     seat_state: idle_standing
     autonomy_level: high
     framework_memory: []
+    swarm_role: synthesis-scout
+    swarm_role: execution-scout
+    swarm_role: risk-scout
+    swarm_role: macro-scout
 
   - id: agent_04
     name: TBD-4

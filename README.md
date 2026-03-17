@@ -48,3 +48,11 @@ python3 -m http.server 8000
 - 업무/브리핑/대기/성장/인사 모드
 - 전원 기립 인사(안녕하세요 / Hello)
 - 팀 상태/언어/지식 상태 가시화
+
+
+## MiroFish 적용 상태
+- 원본 레포: `https://github.com/666ghj/MiroFish.git`
+- 현재 환경 네트워크 제한(403)으로 직접 clone 불가
+- 대체 적용: `mirofish_fallback_playbook`
+  - swarm scan -> lead filter -> synchronized execution -> feedback learning
+- 보운/리모가 우선 로드 후 팀 전체 전파 가능

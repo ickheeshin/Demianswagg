@@ -4,6 +4,12 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 
+
+
+MIROFISH_FALLBACK_PLAYBOOK = """MiroFish-style fallback playbook (network-restricted):
+1) swarm scan -> 2) lead filter -> 3) synchronized execution -> 4) feedback learning
+"""
+
 SOTA_EXPECTATION_ENGINE_V3_3 = """■ SOTA Expectation-Driven Valuation Engine v3.3
 ■ High-Beta / Optionality / Product-Platform Hybrid Edition
 핵심요약:
@@ -42,6 +48,8 @@ class Agent:
     completed_tasks: int = 0
     knowledge_score: float = 1.0
     knowledge_base: Dict[str, str] = field(default_factory=dict)
+    swarm_role: str = "scout"
+    signal_confidence: float = 0.5
 
     def start_task(self, task: Task) -> str:
         self.is_working = True
@@ -56,6 +64,12 @@ class Agent:
 
     def greeting(self) -> str:
         return f"[{self.agent_id}] {self.name}: 안녕하세요! Hello!"
+
+    def apply_mirofish_playbook(self) -> str:
+        self.knowledge_base["mirofish_playbook"] = MIROFISH_FALLBACK_PLAYBOOK
+        self.signal_confidence = round(min(1.0, self.signal_confidence + 0.1), 2)
+        return f"[{self.agent_id}] {self.name} loaded MiroFish fallback playbook (confidence={self.signal_confidence})."
+
 
     def learn_framework(self, key: str, content: str) -> str:
         self.knowledge_base[key] = content
@@ -158,6 +172,27 @@ class OfficeSimulation:
         agent = self._find_by_name(by_agent_name)
         return agent.recall_framework("sota_expectation_engine_v3_3")
 
+    def apply_mirofish_to_team(self) -> List[str]:
+        logs: List[str] = []
+        lead = self._team_lead()
+        for agent in self.agents:
+            logs.append(agent.apply_mirofish_playbook())
+            if agent.agent_id != lead.agent_id:
+                logs.append(f"[{agent.agent_id}] {agent.name} routes swarm signal to lead [{lead.agent_id}] {lead.name}.")
+        logs.append(f"[{lead.agent_id}] {lead.name} consolidates swarm signals and reports to {self.user_name}.")
+        return logs
+
+    def run_mirofish_schooling_cycle(self) -> List[str]:
+        logs: List[str] = []
+        lead = self._team_lead()
+        for agent in self.agents:
+            if agent.agent_id == lead.agent_id:
+                continue
+            agent.signal_confidence = round(min(1.0, agent.signal_confidence + 0.05), 2)
+            logs.append(f"[{agent.agent_id}] {agent.name} syncs with lead {lead.name} (confidence={agent.signal_confidence}).")
+        logs.append(f"[{lead.agent_id}] {lead.name} finalizes coordinated action for {self.user_name}.")
+        return logs
+
     def spread_sota_engine_from_leads(self) -> List[str]:
         logs: List[str] = []
         boun = self._find_by_name("보운")
@@ -211,6 +246,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="structured synthesis",
             growth_goal="maximize team quality and decision reliability",
             expertise=["investment", "portfolio", "risk", "valuation-framework"],
+            swarm_role="lead",
             is_team_lead=True,
         ),
         Agent(
@@ -221,6 +257,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="trend hunting",
             growth_goal="track real-time crypto/memecoin alpha",
             expertise=["coin", "memecoin", "onchain", "expectation-valuation"],
+            swarm_role="alpha-scout",
             reports_to="agent_01",
         ),
         Agent(
@@ -231,6 +268,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="scenario planning",
             growth_goal="connect macro signals to coin strategy",
             expertise=["investment", "macro"],
+            swarm_role="macro-scout",
             reports_to="agent_01",
         ),
         Agent(
@@ -241,6 +279,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="constraint optimization",
             growth_goal="reduce drawdown and approval errors",
             expertise=["risk", "compliance"],
+            swarm_role="risk-scout",
             reports_to="agent_01",
         ),
         Agent(
@@ -251,6 +290,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="rapid iteration",
             growth_goal="improve execution speed and consistency",
             expertise=["execution", "ops"],
+            swarm_role="execution-scout",
             reports_to="agent_01",
         ),
         Agent(
@@ -261,6 +301,7 @@ def build_default_agents() -> List[Agent]:
             creativity_style="cross-domain synthesis",
             growth_goal="merge scattered intel into clear action",
             expertise=["research", "synthesis"],
+            swarm_role="synthesis-scout",
             reports_to="agent_01",
         ),
     ]

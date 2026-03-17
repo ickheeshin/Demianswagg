@@ -27,6 +27,14 @@ def demo() -> None:
     print(sim.recall_sota_engine("리모"))
     print(sim.recall_sota_engine("TBD-3"))
 
+    print("\n=== MIROFISH ADAPTATION (FALLBACK) ===")
+    for line in sim.apply_mirofish_to_team():
+        print(line)
+
+    print("\n=== MIROFISH SCHOOLING CYCLE ===")
+    for line in sim.run_mirofish_schooling_cycle():
+        print(line)
+
     print("\n=== WORK MODE ===")
     for line in sim.assign_tasks(tasks):
         print(line)

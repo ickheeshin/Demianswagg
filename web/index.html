@@ -116,6 +116,7 @@
           <button id="teachCoreBtn" class="btn-violet">Teach 보운 + 리모</button>
           <button id="spreadBtn" class="btn-violet">Spread to All Agents</button>
           <button id="recallBtn" class="btn-violet">Recall Check</button>
+          <button id="mirofishBtn" class="btn-violet">🐟 MiroFish Sync Mode</button>
         </div>
 
         <div class="section">
@@ -169,6 +170,7 @@
         color: `hsl(${15 + i * 50} 82% 61%)`,
         speech: "",
         memory: {},
+        swarmRole: ["lead","alpha-scout","macro-scout","risk-scout","execution-scout","synthesis-scout"][i],
       }));
 
       const log = (msg) => {
@@ -332,6 +334,23 @@
         renderAgentPanel();
       }
 
+
+      function mirofishMode() {
+        const lead = agents.find((a) => a.swarmRole === "lead");
+        agents.forEach((a, idx) => {
+          a.mode = "mirofish";
+          a.working = true;
+          a.seated = false;
+          const ang = (Math.PI * 2 * idx) / agents.length;
+          const r = 140;
+          a.targetX = world.briefing.x + Math.cos(ang) * r;
+          a.targetY = world.briefing.y + Math.sin(ang) * r;
+          a.speech = a.swarmRole === "lead" ? "Signal Hub" : "Sync";
+        });
+        log(`MiroFish sync: all signals route to ${lead.name} -> YOU`);
+        renderAgentPanel();
+      }
+
       function recallCheck() {
         const b = agents.find((x) => x.name === "보운");
         const r = agents.find((x) => x.name === "리모");
@@ -479,6 +498,7 @@
               <span class="badge k">${a.languages.join("/")}</span>
               <span class="badge ${hasKnowledge ? "ok" : "warn"}">${hasKnowledge ? "SOTA Loaded" : "SOTA Empty"}</span>
               <span class="badge ${a.seated ? "ok" : "warn"}">${a.seated ? "Seated" : "Standing"}</span>
+              <span class="badge k">${a.swarmRole}</span>
             </div>
           `;
         }).join("");
@@ -501,6 +521,7 @@
       document.getElementById("teachCoreBtn").onclick = teachCore;
       document.getElementById("spreadBtn").onclick = spreadKnowledge;
       document.getElementById("recallBtn").onclick = recallCheck;
+      document.getElementById("mirofishBtn").onclick = mirofishMode;
 
       resize();
       agents.forEach(setIdleTarget);
