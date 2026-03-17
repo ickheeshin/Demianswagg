@@ -1,7 +1,7 @@
 meta:
   project_name: Jarvis Office Colony
-  version: 0.4.0
-  notes: "불만-조시 UX 개선 루프 특화 구성"
+  version: 0.5.0
+  notes: "불만 명령기반 고강도 비평 + 조시 즉시 수정 + 최신모델 동기화"
 
 room:
   name: UX Iteration Studio
@@ -11,20 +11,24 @@ room:
 
 governance:
   owner: user
-  reporting_flow: "조시 -> user"
+  reporting_flow: "불만 -> 조시 -> user"
   policy: "agents_have_no_business_tasks"
 
 ux_loop_policy:
+  trigger: "user_command_required"
   critic_agent: agent_01
   fixer_agent: agent_02
   critic_rules:
     - always_negative_feedback
     - never_praise
-    - expert_ux_ui_review
-  collaboration:
-    - continuous_dialogue
-    - iterative_fixes
-    - self_growth
+    - extreme_issue_hunting_on_command
+  fixer_rules:
+    - immediate_fix_after_critic_order
+    - keep_listening_to_bulman
+  model_update_rules:
+    - critic_continuous_research
+    - fixer_continuous_research
+    - both_update_to_latest_model_every_round
 
 agents:
   - id: agent_01
@@ -34,8 +38,8 @@ agents:
     reports_to: null
     domain_focus: [ux, ui, usability, information_architecture]
     languages: [ko, en]
-    persona: always-negative-never-praise
-    growth_goal: "매 라운드 비평 정밀도 향상"
+    persona: always-negative-command-driven
+    growth_goal: "명령마다 치명적 UX 문제를 고정밀로 탐지"
     seat_state: idle_standing
 
   - id: agent_02
@@ -45,6 +49,6 @@ agents:
     reports_to: null
     domain_focus: [ux, ui, prototyping, interaction]
     languages: [ko, en]
-    persona: feedback-driven-iterative-fixer
-    growth_goal: "불만 피드백 반영 속도와 완성도 향상"
+    persona: feedback-first-rapid-fixer
+    growth_goal: "불만 지시 즉시 반영 + 최신모델 기반 수정 품질 향상"
     seat_state: idle_standing

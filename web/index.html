@@ -3,18 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UX Iteration Studio | Bulman & Joshi</title>
+    <title>UX Iteration Studio | Bulman Command Loop</title>
     <style>
       :root { --bg:#0b1324; --panel:#17233b; --line:#35507a; --text:#e8f0ff; --muted:#9eb2d3; --accent:#6ee7ff; --bad:#ff7b7b; --good:#8df6b3; }
       *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 10% 0,#29406a,var(--bg));color:var(--text);font-family:Inter,Pretendard,sans-serif}
-      .wrap{display:grid;grid-template-columns:360px 1fr;gap:12px;padding:12px;height:100vh}
+      .wrap{display:grid;grid-template-columns:390px 1fr;gap:12px;padding:12px;height:100vh}
       .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
       button{background:#1d2c48;color:var(--text);border:1px solid var(--line);padding:8px 10px;border-radius:9px;cursor:pointer}
       button:hover{border-color:var(--accent)}
+      textarea{width:100%;background:#0f1a30;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px;min-height:70px}
       .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
       .kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
       .card{border:1px solid var(--line);border-radius:10px;padding:8px;background:#13203a}
-      .logs,.agents{height:210px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px;background:#0f1a30;font-size:12px}
+      .logs,.agents{height:180px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px;background:#0f1a30;font-size:12px}
       .canvas-wrap{background:#0f1a30;border:1px solid var(--line);border-radius:14px;padding:6px}
       canvas{width:100%;height:calc(100vh - 26px);display:block;border-radius:10px;background:#1b2942}
       .sub{color:var(--muted);font-size:12px;margin:0}
@@ -25,12 +26,14 @@
     <div class="wrap">
       <section class="panel">
         <h2 style="margin:0">UX Iteration Studio</h2>
-        <p class="sub">불만은 항상 부정적 비평만 수행하고, 조시는 피드백을 반영해 UI를 반복 개선합니다.</p>
+        <p class="sub">사용자 명령 시 불만이 강한 문제를 탐색하고 조시가 즉시 수정합니다. 두 에이전트 모두 매 라운드 최신 모델로 업데이트됩니다.</p>
+        <textarea id="commandInput">UI 전체 점검하고 미친듯이 문제 찾아서 조시가 바로 고치게 해</textarea>
+        <button id="commandBtn">⚡ Command Bulman</button>
         <div class="row">
           <button id="greetBtn">👋 Standing Greeting</button>
           <button id="idleBtn">■ Idle Roam</button>
         </div>
-        <button id="loopBtn">🔁 UX Critic Loop (3 Rounds)</button>
+
         <div class="kpi">
           <div class="card"><div class="sub">ui_version</div><b id="v">v1</b></div>
           <div class="card"><div class="sub">ux_quality</div><b id="q">40.0</b></div>
@@ -50,47 +53,60 @@
       const canvas = document.getElementById('office');
       const ctx = canvas.getContext('2d');
 
-      const state = { uiVersion:1, quality:40.0, mode:'idle' };
+      const state = { uiVersion:1, quality:40.0 };
       const agents = [
-        { id:'agent_01', name:'불만', role:'Senior UX Critic', persona:'always-negative / never-praise', x:240, y:500, tx:320, ty:500, color:'#ff8a8a', speech:'', learning:1.0 },
-        { id:'agent_02', name:'조시', role:'UX UI Fixer', persona:'feedback-driven iterative fix', x:430, y:520, tx:540, ty:520, color:'#8df6b3', speech:'', learning:1.0 },
+        { id:'agent_01', name:'불만', role:'Senior UX Critic', persona:'always-negative / command-driven', x:240, y:500, tx:320, ty:500, color:'#ff8a8a', speech:'', learning:1.0, modelRev:1 },
+        { id:'agent_02', name:'조시', role:'UX UI Fixer', persona:'feedback-first rapid fixer', x:430, y:520, tx:540, ty:520, color:'#8df6b3', speech:'', learning:1.0, modelRev:1 },
       ];
 
       function log(line){ logsEl.innerHTML = `${new Date().toLocaleTimeString()} | ${line}<br>` + logsEl.innerHTML; }
       function updateKpi(){ vEl.textContent=`v${state.uiVersion}`; qEl.textContent=state.quality.toFixed(1); }
       function renderAgentCards(){
-        agentsEl.innerHTML = agents.map(a => `<div class='card'><b>${a.name}</b> <span class='agent-badge'>ko/en</span><span class='agent-badge'>unassigned</span><div class='sub'>${a.role}</div><div class='sub'>${a.persona}</div><div class='sub'>learning=${a.learning.toFixed(2)}</div></div>`).join('');
+        agentsEl.innerHTML = agents.map(a => `<div class='card'><b>${a.name}</b> <span class='agent-badge'>ko/en</span><span class='agent-badge'>unassigned</span><div class='sub'>${a.role}</div><div class='sub'>${a.persona}</div><div class='sub'>model_rev=r${a.modelRev} | learning=${a.learning.toFixed(2)}</div></div>`).join('');
       }
 
-      function idleTargets(){ agents.forEach(a=>{ a.tx=120+Math.random()*860; a.ty=160+Math.random()*500; a.speech=''; }); state.mode='idle'; log('대기 모드: 자유 이동'); }
-      function greeting(){
-        const cx=560, cy=310; agents.forEach((a,i)=>{ a.tx=cx+(i?80:-80); a.ty=cy; a.speech='안녕하세요 / Hello'; });
-        state.mode='greet'; log('전원 기립 인사 완료');
+      function idleTargets(){ agents.forEach(a=>{ a.tx=120+Math.random()*860; a.ty=160+Math.random()*500; a.speech=''; }); log('대기 모드: 자유 이동'); }
+      function greeting(){ const cx=560, cy=310; agents.forEach((a,i)=>{ a.tx=cx+(i?80:-80); a.ty=cy; a.speech='안녕하세요 / Hello'; }); log('전원 기립 인사 완료'); }
+
+      function updateModelsEachRound(){
+        agents.forEach((a)=>{
+          a.modelRev += 1;
+          a.learning = Math.min(10.0, a.learning + 0.11);
+          log(`[${a.id}] ${a.name} 최신 모델 업데이트 (r${a.modelRev}, learning=${a.learning.toFixed(2)})`);
+        });
       }
 
-      function uxLoop(rounds=3){
+      function commandBulman(rounds=3){
+        const command = document.getElementById('commandInput').value.trim();
         const critic = agents[0], fixer = agents[1];
+        if(!command){ log('명령을 입력하세요.'); return; }
+
+        log(`[COMMAND] YOU: ${command}`);
+        log('[ACK] 불만: 명령 수신. 즉시 고강도 문제 탐색 시작.');
+
         const critiques = [
-          '문제: 정보 위계가 약해 첫 행동이 불명확합니다.',
-          '문제: 시각 대비와 간격 체계가 불안정합니다.',
-          '문제: 피드백 지연으로 사용자가 결과를 확신하지 못합니다.'
+          '치명적 문제: 정보 구조가 사용자 목표 흐름을 방해합니다.',
+          '치명적 문제: 피드백 밀도가 낮아 오작동으로 오해될 수준입니다.',
+          '치명적 문제: 시각 계층이 불안정해 인지 비용이 과도합니다.'
         ];
         const fixes = [
-          '조치: 핵심 CTA를 상단 고정하고 패널 구조를 단순화했습니다.',
-          '조치: 상태 링/텍스트 대비를 확장하고 타이포 스케일을 재정렬했습니다.',
-          '조치: 상호작용 로그 타임스탬프와 즉시 피드백 애니메이션을 추가했습니다.'
+          '조치: 핵심 CTA 상단 고정 + 정보 위계 단일화 완료.',
+          '조치: 성공/실패 반응 피드백을 즉시 표출하도록 개선 완료.',
+          '조치: 타이포/간격/컬러 대비 토큰 표준화 완료.'
         ];
 
         for(let i=0;i<rounds;i++){
-          critic.speech='문제 발견'; fixer.speech='수정 중';
+          critic.speech='문제 탐지'; fixer.speech='즉시 수정';
           log(`[ROUND ${i+1}] [불만] ${critiques[i%critiques.length]}`);
+          log(`[ROUND ${i+1}] [불만 -> 조시] 지금 바로 수정해.`);
           state.uiVersion += 1;
-          state.quality = Math.min(95, state.quality + 7.5);
+          state.quality = Math.min(98, state.quality + 8.0);
           log(`[ROUND ${i+1}] [조시] ${fixes[i%fixes.length]} | v${state.uiVersion} | quality=${state.quality.toFixed(1)}`);
-          critic.learning += 0.06; fixer.learning += 0.09;
+          updateModelsEachRound();
         }
+
         critic.tx=430; critic.ty=300; fixer.tx=700; fixer.ty=330;
-        log('[REPORT] 조시 -> YOU: 불만 피드백 기반 UX/UI 반복 개선 완료');
+        log('[REPORT] 조시 -> YOU: 불만 지시 반영 완료. 최신 모델 동기화 유지 중.');
         updateKpi(); renderAgentCards();
       }
 
@@ -109,14 +125,14 @@
         ctx.fillStyle=a.color; ctx.beginPath(); ctx.arc(a.x,a.y,16,0,Math.PI*2); ctx.fill();
         ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.strokeRect(a.x-10,a.y+14,20,14);
         ctx.fillStyle='#fff'; ctx.font='12px sans-serif'; ctx.fillText(a.name,a.x-18,a.y-22);
-        if(a.speech){ ctx.fillStyle='rgba(10,20,38,.9)'; ctx.fillRect(a.x-44,a.y-54,92,20); ctx.fillStyle='#d9ecff'; ctx.fillText(a.speech,a.x-40,a.y-40); }
+        if(a.speech){ ctx.fillStyle='rgba(10,20,38,.9)'; ctx.fillRect(a.x-50,a.y-54,110,20); ctx.fillStyle='#d9ecff'; ctx.fillText(a.speech,a.x-45,a.y-40); }
       }
 
       function tick(){ drawRoom(); agents.forEach(drawAgent); requestAnimationFrame(tick); }
 
+      document.getElementById('commandBtn').onclick = () => commandBulman(3);
       document.getElementById('greetBtn').onclick = greeting;
       document.getElementById('idleBtn').onclick = idleTargets;
-      document.getElementById('loopBtn').onclick = () => uxLoop(3);
 
       renderAgentCards(); updateKpi(); idleTargets(); tick();
     </script>
