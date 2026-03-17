@@ -1,8 +1,8 @@
 meta:
   project_name: Jarvis Office Colony
-  version: 0.2.0
+  version: 0.3.0
   notes: |
-    팀장(보운) 중심 보고체계 + 에이전트 간 대화/학습/정보공유 모델로 확장.
+    팀장(보운)·전문가(리모) 중심의 지식 전파 체계 포함.
 
 room:
   name: Strategic Operations Room
@@ -17,6 +17,11 @@ governance:
   approval_flow: "general_agent -> team_lead -> user"
   important_info_flow: "general_agent -> team_lead -> user"
 
+knowledge_framework:
+  key: sota_expectation_engine_v3_3
+  owner_agents: [agent_01, agent_02]
+  spread_policy: "team_lead_and_specialist_teach_all_agents"
+
 agents:
   - id: agent_01
     name: 보운
@@ -30,6 +35,7 @@ agents:
     growth_goal: "팀 전체 의사결정 품질 극대화"
     seat_state: idle_standing
     autonomy_level: high
+    framework_memory: [sota_expectation_engine_v3_3]
 
   - id: agent_02
     name: 리모
@@ -43,6 +49,7 @@ agents:
     growth_goal: "최신 코인/밈코인 정보 지속 수집"
     seat_state: idle_standing
     autonomy_level: high
+    framework_memory: [sota_expectation_engine_v3_3]
 
   - id: agent_03
     name: TBD-3
@@ -56,6 +63,7 @@ agents:
     growth_goal: "거시신호와 코인전략 연결"
     seat_state: idle_standing
     autonomy_level: high
+    framework_memory: []
 
   - id: agent_04
     name: TBD-4
@@ -69,6 +77,7 @@ agents:
     growth_goal: "리스크 및 승인 오류 최소화"
     seat_state: idle_standing
     autonomy_level: high
+    framework_memory: []
 
   - id: agent_05
     name: TBD-5
@@ -82,6 +91,7 @@ agents:
     growth_goal: "실행 속도 및 일관성 향상"
     seat_state: idle_standing
     autonomy_level: high
+    framework_memory: []
 
   - id: agent_06
     name: TBD-6
@@ -95,3 +105,4 @@ agents:
     growth_goal: "분산 정보 통합 및 액션화"
     seat_state: idle_standing
     autonomy_level: high
+    framework_memory: []

@@ -3,181 +3,172 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jarvis Office Colony - RimWorld Style</title>
+    <title>Jarvis Office Colony | Executive Floor</title>
     <style>
       :root {
         color-scheme: dark;
-        --bg: #12151d;
-        --panel: #1b212c;
-        --line: #3a4456;
-        --text: #d7deea;
-        --ok: #79f29d;
-        --warn: #ffbe57;
-        --accent: #70d6ff;
+        --bg: #0e1422;
+        --panel: #1a2438;
+        --line: #3f5478;
+        --text: #e6edf8;
+        --muted: #9fb2cf;
+        --accent: #73ddff;
+        --ok: #7ef7a9;
+        --warn: #ffc368;
+        --violet: #c6a5ff;
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        font-family: "Press Start 2P", "DungGeunMo", "Noto Sans KR", monospace;
-        background: radial-gradient(circle at 10% 0%, #26344f, var(--bg));
+        font-family: Inter, "Pretendard", "Noto Sans KR", sans-serif;
+        background: radial-gradient(circle at 10% -20%, #2e4368, var(--bg));
         color: var(--text);
       }
       .layout {
         display: grid;
-        grid-template-columns: 350px 1fr;
-        gap: 12px;
+        grid-template-columns: 370px 1fr;
         min-height: 100vh;
+        gap: 12px;
         padding: 12px;
       }
       .panel {
-        background: color-mix(in srgb, var(--panel) 90%, #000);
-        border: 2px solid var(--line);
-        border-radius: 8px;
-        padding: 12px;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 90%, black), #121a2b);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
       }
-      h1, h2, h3 { margin: 0 0 10px; font-size: 14px; letter-spacing: .5px; }
-      p { margin: 0 0 10px; font-size: 11px; line-height: 1.5; }
-      label { font-size: 10px; opacity: .9; }
+      .sidebar { padding: 12px; overflow: auto; }
+      .headline { margin: 0; font-size: 18px; }
+      .sub { color: var(--muted); margin: 8px 0 14px; font-size: 12px; line-height: 1.5; }
+      .section { border: 1px solid #324868; border-radius: 10px; padding: 10px; margin-bottom: 10px; background: #10192a; }
+      .section h3 { margin: 0 0 8px; font-size: 13px; }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      label { font-size: 11px; color: #cdd9ec; }
       input, select, button {
-        width: 100%;
-        margin: 4px 0 8px;
-        padding: 8px;
-        border-radius: 4px;
-        border: 2px solid #3a4456;
-        background: #111827;
-        color: var(--text);
-        font-family: inherit;
-        font-size: 10px;
+        width: 100%; margin-top: 4px; margin-bottom: 8px;
+        border: 1px solid #3f5478; border-radius: 8px;
+        background: #0f1728; color: var(--text);
+        padding: 8px; font-size: 12px;
       }
       button { cursor: pointer; }
       button:hover { border-color: var(--accent); }
-      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-      .room-wrap { position: relative; }
+      .btn-accent { border-color: #5cc8f4; background: #0f243a; }
+      .btn-violet { border-color: #8e73cf; background: #221738; }
+      .logs, .agent-list { max-height: 180px; overflow: auto; font-size: 12px; }
+      .agent-card {
+        border: 1px solid #324868; border-radius: 8px; padding: 8px; margin-bottom: 6px;
+        background: #0e1726;
+      }
+      .badge { display:inline-block; font-size:10px; padding:2px 7px; border-radius:999px; border:1px solid #41587c; margin-right:5px; }
+      .badge.ok { border-color: #2f8450; color: var(--ok); }
+      .badge.warn { border-color: #8e6f2d; color: var(--warn); }
+      .badge.k { border-color: #6d5da2; color: #d5c2ff; }
+
+      .stage { position: relative; overflow: hidden; }
       #room {
-        width: 100%;
-        height: 87vh;
-        border: 2px solid #4a5b78;
-        border-radius: 8px;
-        image-rendering: pixelated;
+        width: 100%; height: 93vh; display: block;
+        border-radius: 12px;
         background: #0b1220;
       }
-      .hud {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        display: flex;
-        gap: 6px;
+      .top-hud {
+        position: absolute; top: 12px; left: 12px; display: flex; gap: 6px; z-index: 2;
       }
       .chip {
-        font-size: 9px;
-        padding: 4px 8px;
-        border: 1px solid #506080;
-        background: rgba(10, 15, 28, .84);
-        border-radius: 999px;
+        font-size: 11px; padding: 4px 10px; border-radius: 999px;
+        background: rgba(16, 28, 46, .86); border: 1px solid #48608a;
       }
-      .agent-list, .logs {
-        border-top: 1px dashed #46546f;
-        margin-top: 8px;
-        padding-top: 8px;
-        max-height: 190px;
-        overflow: auto;
-      }
-      .agent-item {
-        font-size: 10px;
-        margin-bottom: 6px;
-        border: 1px solid #3a4456;
-        background: #111827;
-        border-radius: 4px;
-        padding: 6px;
-        line-height: 1.5;
-      }
-      .ok { color: var(--ok); }
-      .idle { color: var(--warn); }
     </style>
   </head>
   <body>
     <div class="layout">
-      <aside class="panel">
-        <h1>JARVIS OFFICE COLONY</h1>
-        <p>
-          림월드 감성으로 재구성된 오피스 씬입니다. 캐릭터(폰)들이 방 안을 자유롭게 이동하고,
-          작업 지시 시 같은 공간에서 모여 일하며 책상에 착석합니다.
-        </p>
+      <aside class="panel sidebar">
+        <h1 class="headline">Jarvis Office Colony</h1>
+        <p class="sub">실제 회사처럼 보이는 오피스 환경에서 6명의 캐릭터가 움직입니다. 보운(팀장)·리모(전문가)는 SOTA 프레임워크를 학습하고 팀 전체로 전파합니다.</p>
 
-        <h3>TASK CONSOLE</h3>
-        <label>TITLE</label>
-        <input id="taskTitle" placeholder="예: 밈코인 급등락 브리핑" />
-
-        <div class="row">
-          <div>
-            <label>CATEGORY</label>
-            <select id="taskCategory">
-              <option value="investment">investment</option>
-              <option value="coin">coin</option>
-              <option value="memecoin">memecoin</option>
-            </select>
+        <div class="section">
+          <h3>Task Console</h3>
+          <label>Title</label>
+          <input id="taskTitle" placeholder="예: 옵션가치 리포트 업데이트" />
+          <div class="grid2">
+            <div>
+              <label>Category</label>
+              <select id="taskCategory">
+                <option value="investment">investment</option>
+                <option value="coin">coin</option>
+                <option value="memecoin">memecoin</option>
+              </select>
+            </div>
+            <div>
+              <label>Priority</label>
+              <input id="taskPriority" type="number" min="1" max="5" value="3" />
+            </div>
           </div>
-          <div>
-            <label>PRIORITY</label>
-            <input id="taskPriority" type="number" min="1" max="5" value="3" />
-          </div>
+          <button id="addTaskBtn">+ Add Task</button>
+          <button id="startBtn" class="btn-accent">▶ Work Mode</button>
+          <button id="meetingBtn">◎ Briefing Mode</button>
+          <button id="idleBtn">■ Idle Roam</button>
+          <button id="growthBtn">▲ Growth Cycle</button>
+          <button id="greetBtn">👋 Standing Greeting (안녕하세요 / Hello)</button>
         </div>
 
-        <button id="addTaskBtn">+ ADD TASK</button>
-        <button id="startBtn">▶ WORK MODE</button>
-        <button id="meetingBtn">◎ BRIEFING MODE</button>
-        <button id="idleBtn">■ IDLE ROAM MODE</button>
-        <button id="growthBtn">▲ GROWTH CYCLE</button>
-        <button id="greetBtn">👋 HELLO GREETING (STANDING)</button>
+        <div class="section">
+          <h3>Knowledge Console (SOTA v3.3)</h3>
+          <button id="teachCoreBtn" class="btn-violet">Teach 보운 + 리모</button>
+          <button id="spreadBtn" class="btn-violet">Spread to All Agents</button>
+          <button id="recallBtn" class="btn-violet">Recall Check</button>
+        </div>
 
-        <div class="agent-list" id="agentList"></div>
-        <div class="logs" id="logs"></div>
+        <div class="section">
+          <h3>Agent Status</h3>
+          <div class="agent-list" id="agentList"></div>
+        </div>
+
+        <div class="section">
+          <h3>Logs</h3>
+          <div class="logs" id="logs"></div>
+        </div>
       </aside>
 
-      <main class="panel room-wrap">
-        <div class="hud">
-          <span class="chip">RIMWORLD STYLE</span>
-          <span class="chip">6 PAWNS</span>
-          <span class="chip">SIT ONLY WHEN WORKING</span>
+      <main class="panel stage">
+        <div class="top-hud">
+          <span class="chip">Executive Office Floor</span>
+          <span class="chip">6 Agents</span>
+          <span class="chip">Agent → 보운 → YOU</span>
+          <span class="chip">KO / EN</span>
         </div>
         <canvas id="room"></canvas>
       </main>
     </div>
 
     <script>
-      const TILE = 24;
+      const TILE = 28;
       const room = document.getElementById("room");
       const ctx = room.getContext("2d");
       const logsEl = document.getElementById("logs");
       const agentListEl = document.getElementById("agentList");
       const taskQueue = [];
 
-      const world = {
-        walls: [],
-        desks: [],
-        seats: [],
-        briefing: { x: 0, y: 0, r: 60 },
-      };
+      const world = { desks: [], seats: [], briefing: { x: 0, y: 0, r: 80 }, windows: [], plants: [] };
 
-      const traits = ["분석형", "공격형", "보수형", "탐색형", "전략형", "실행형"];
+      const names = ["보운", "리모", "TBD-3", "TBD-4", "TBD-5", "TBD-6"];
+      const roles = ["Team Lead", "Crypto/Memecoin Specialist", "Macro Analyst", "Risk Controller", "Execution Operator", "Research Synthesizer"];
       const agents = Array.from({ length: 6 }, (_, i) => ({
         id: `agent_${String(i + 1).padStart(2, "0")}`,
-        name: ["보운","리모","TBD-3","TBD-4","TBD-5","TBD-6"][i],
-        role: ["Team Lead","Crypto/Memecoin Specialist","Macro Analyst","Risk Controller","Execution Operator","Research Synthesizer"][i],
-        personality: traits[i],
-        creativity: "independent",
+        name: names[i],
+        role: roles[i],
+        personality: ["결정형", "스카우트형", "분석형", "통제형", "실행형", "통합형"][i],
+        languages: ["ko", "en"],
         working: false,
         seated: false,
         mode: "idle",
-        task: null,
-        x: 120 + i * 20,
-        y: 100 + i * 18,
-        targetX: 200,
-        targetY: 140,
-        speed: 1.2 + Math.random() * .8,
-        color: `hsl(${i * 55 + 20} 80% 60%)`,
-        languages: ["ko", "en"],
-        speech: ""
+        x: 140 + i * 26,
+        y: 130 + i * 16,
+        targetX: 240,
+        targetY: 180,
+        speed: 1.25 + Math.random() * .75,
+        color: `hsl(${15 + i * 50} 82% 61%)`,
+        speech: "",
+        memory: {},
       }));
 
       const log = (msg) => {
@@ -189,58 +180,57 @@
       function resize() {
         room.width = room.clientWidth;
         room.height = room.clientHeight;
-        buildMap();
+        buildWorld();
       }
 
-      function buildMap() {
-        world.walls = [];
+      function buildWorld() {
         const w = room.width;
         const h = room.height;
 
-        // 테두리 벽
-        for (let x = 0; x < w; x += TILE) {
-          world.walls.push({ x, y: 0, w: TILE, h: TILE });
-          world.walls.push({ x, y: h - TILE, w: TILE, h: TILE });
-        }
-        for (let y = TILE; y < h - TILE; y += TILE) {
-          world.walls.push({ x: 0, y, w: TILE, h: TILE });
-          world.walls.push({ x: w - TILE, y, w: TILE, h: TILE });
-        }
-
         world.desks = [];
         world.seats = [];
+        world.windows = [
+          { x: w * 0.18, y: 26, w: 180, h: 62 },
+          { x: w * 0.42, y: 26, w: 180, h: 62 },
+          { x: w * 0.66, y: 26, w: 180, h: 62 },
+        ];
+        world.plants = [
+          { x: 48, y: h - 90 },
+          { x: w - 70, y: h - 90 },
+          { x: w - 70, y: 120 },
+        ];
+
         const cols = 3;
         const sx = w / (cols + 1);
-        const sy = h * 0.68;
-
+        const sy = h * 0.66;
         for (let i = 0; i < 6; i++) {
           const col = i % cols;
           const row = Math.floor(i / cols);
           const x = sx * (col + 1);
-          const y = sy + row * 120;
-          world.desks.push({ x, y, w: 92, h: 48 });
-          world.seats.push({ x, y: y + 36 });
+          const y = sy + row * 135;
+          world.desks.push({ x, y, w: 106, h: 54 });
+          world.seats.push({ x, y: y + 38 });
         }
-
-        world.briefing = { x: w * .5, y: h * .35, r: 74 };
+        world.briefing = { x: w * .5, y: h * .38, r: 92 };
       }
 
-      function setIdleTarget(agent) {
-        agent.targetX = TILE * 2 + Math.random() * (room.width - TILE * 4);
-        agent.targetY = TILE * 2 + Math.random() * (room.height - TILE * 5);
+      function setIdleTarget(a) {
+        a.targetX = TILE * 2 + Math.random() * (room.width - TILE * 4);
+        a.targetY = TILE * 3 + Math.random() * (room.height - TILE * 6);
       }
-
-      function setSeatTarget(agent, idx) {
+      function setSeatTarget(a, idx) {
         const seat = world.seats[idx % world.seats.length];
-        agent.targetX = seat.x;
-        agent.targetY = seat.y;
+        a.targetX = seat.x;
+        a.targetY = seat.y;
+      }
+      function setBriefingTarget(a, idx) {
+        const ang = (Math.PI * 2 * idx) / agents.length;
+        const r = world.briefing.r - 18;
+        a.targetX = world.briefing.x + Math.cos(ang) * r;
+        a.targetY = world.briefing.y + Math.sin(ang) * r;
       }
 
-      function setBriefingTarget(agent, idx) {
-        const angle = (Math.PI * 2 / agents.length) * idx;
-        agent.targetX = world.briefing.x + Math.cos(angle) * (world.briefing.r - 14);
-        agent.targetY = world.briefing.y + Math.sin(angle) * (world.briefing.r - 14);
-      }
+      function clearSpeech() { agents.forEach((a) => (a.speech = "")); }
 
       function addTask() {
         const title = document.getElementById("taskTitle").value.trim();
@@ -254,63 +244,57 @@
 
       function startWork() {
         if (!taskQueue.length) return log("작업 큐가 비어있습니다.");
-        const ordered = [...taskQueue].sort((a, b) => b.priority - a.priority);
-
+        clearSpeech();
         agents.forEach((a) => {
           a.working = false;
           a.seated = false;
-          a.task = null;
-          a.speech = "";
+          a.mode = "idle";
         });
-
+        const ordered = [...taskQueue].sort((a, b) => b.priority - a.priority);
         ordered.forEach((task, idx) => {
           const a = agents[idx % agents.length];
-          a.task = task;
           a.working = true;
           a.seated = true;
           a.mode = "working";
           setSeatTarget(a, idx);
-          log(`[${a.id}] ${task.title} 시작 → desk 착석`);
+          log(`[${a.id}] ${task.title} 착수`);
         });
-
         agents.forEach((a, idx) => {
           if (!a.working) {
             a.mode = "support";
-            a.seated = false;
             setBriefingTarget(a, idx);
           }
         });
-
         taskQueue.length = 0;
         renderAgentPanel();
       }
 
       function briefingMode() {
+        clearSpeech();
         agents.forEach((a, idx) => {
           a.mode = "briefing";
           a.working = true;
           a.seated = false;
           setBriefingTarget(a, idx);
         });
-        log("전원 브리핑: 중앙 공간 집결");
+        log("브리핑 모드: 중앙 집결");
         renderAgentPanel();
       }
 
       function idleMode() {
+        clearSpeech();
         agents.forEach((a) => {
           a.mode = "idle";
           a.working = false;
           a.seated = false;
-          a.task = null;
-          a.speech = "";
           setIdleTarget(a);
-          log(`[${a.id}] idle roam`);
         });
+        log("대기 모드: 자유 이동");
         renderAgentPanel();
       }
 
       function growthCycle() {
-        agents.forEach((a) => log(`[${a.id}] 성장: ${a.personality} + ${a.creativity}`));
+        agents.forEach((a) => log(`[${a.id}] 성장: ${a.personality} -> 전략 고도화`));
       }
 
       function greetingMode() {
@@ -318,120 +302,192 @@
           a.mode = "greeting";
           a.working = false;
           a.seated = false;
-          a.task = null;
           a.speech = "안녕하세요 / Hello";
           setBriefingTarget(a, idx);
         });
-        log("전원 인사: 안녕하세요 / Hello");
+        log("전원 기립 인사: 안녕하세요 / Hello");
         renderAgentPanel();
       }
 
-      function moveAgent(a) {
+      function teachCore() {
+        ["보운", "리모"].forEach((name) => {
+          const a = agents.find((x) => x.name === name);
+          a.memory["sota_expectation_engine_v3_3"] = true;
+          log(`[${a.id}] ${name} learned SOTA Expectation Engine v3.3`);
+        });
+        renderAgentPanel();
+      }
+
+      function spreadKnowledge() {
+        const boun = agents.find((x) => x.name === "보운");
+        const rimo = agents.find((x) => x.name === "리모");
+        if (!boun.memory["sota_expectation_engine_v3_3"] || !rimo.memory["sota_expectation_engine_v3_3"]) {
+          return log("먼저 보운/리모 학습을 실행하세요.");
+        }
+        agents.forEach((a) => {
+          if (a.name === "보운" || a.name === "리모") return;
+          a.memory["sota_expectation_engine_v3_3"] = true;
+          log(`[지식전파] 보운+리모 -> ${a.name}`);
+        });
+        renderAgentPanel();
+      }
+
+      function recallCheck() {
+        const b = agents.find((x) => x.name === "보운");
+        const r = agents.find((x) => x.name === "리모");
+        log(`[Recall] 보운: ${b.memory["sota_expectation_engine_v3_3"] ? "Ready" : "Not loaded"}`);
+        log(`[Recall] 리모: ${r.memory["sota_expectation_engine_v3_3"] ? "Ready" : "Not loaded"}`);
+      }
+
+      function move(a) {
         const dx = a.targetX - a.x;
         const dy = a.targetY - a.y;
         const d = Math.hypot(dx, dy);
-        if (d < 8) {
-          if (a.mode === "idle" && Math.random() < 0.018) setIdleTarget(a);
+        if (d < 7) {
+          if (a.mode === "idle" && Math.random() < 0.02) setIdleTarget(a);
           return;
         }
         a.x += (dx / d) * a.speed;
         a.y += (dy / d) * a.speed;
       }
 
-      function drawTiles() {
-        for (let y = 0; y < room.height; y += TILE) {
-          for (let x = 0; x < room.width; x += TILE) {
+      function drawOffice() {
+        const w = room.width;
+        const h = room.height;
+
+        // floor
+        for (let y = 0; y < h; y += TILE) {
+          for (let x = 0; x < w; x += TILE) {
             const dark = ((x / TILE + y / TILE) % 2 === 0);
-            ctx.fillStyle = dark ? "#192231" : "#1d2839";
+            ctx.fillStyle = dark ? "#162338" : "#1b2a42";
             ctx.fillRect(x, y, TILE, TILE);
           }
         }
-      }
 
-      function drawWorld() {
-        drawTiles();
+        // walls
+        ctx.fillStyle = "#4a5f80";
+        ctx.fillRect(0, 0, w, 16);
+        ctx.fillRect(0, h - 16, w, 16);
+        ctx.fillRect(0, 0, 16, h);
+        ctx.fillRect(w - 16, 0, 16, h);
 
-        // 벽
-        world.walls.forEach((w) => {
-          ctx.fillStyle = "#45536a";
-          ctx.fillRect(w.x, w.y, w.w, w.h);
-          ctx.strokeStyle = "#2f3a4d";
-          ctx.strokeRect(w.x, w.y, w.w, w.h);
+        // windows
+        world.windows.forEach((win) => {
+          ctx.fillStyle = "#7fb7ff";
+          ctx.fillRect(win.x, win.y, win.w, win.h);
+          ctx.strokeStyle = "#35517e";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(win.x, win.y, win.w, win.h);
+          ctx.strokeStyle = "#d0e8ff";
+          ctx.beginPath();
+          ctx.moveTo(win.x + win.w / 2, win.y);
+          ctx.lineTo(win.x + win.w / 2, win.y + win.h);
+          ctx.stroke();
         });
 
-        // 브리핑 원형 구역
-        ctx.fillStyle = "rgba(82, 179, 255, 0.12)";
-        ctx.strokeStyle = "rgba(112, 214, 255, .5)";
+        // plants
+        world.plants.forEach((p) => {
+          ctx.fillStyle = "#3f5a43";
+          ctx.fillRect(p.x - 12, p.y, 24, 18);
+          ctx.fillStyle = "#4ac26a";
+          ctx.beginPath();
+          ctx.arc(p.x, p.y - 4, 14, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // briefing zone
+        ctx.fillStyle = "rgba(118, 194, 255, .12)";
+        ctx.strokeStyle = "rgba(118, 194, 255, .55)";
         ctx.beginPath();
         ctx.arc(world.briefing.x, world.briefing.y, world.briefing.r, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // 책상/의자
+        // desks/chairs
         world.desks.forEach((d, i) => {
-          ctx.fillStyle = "#4f5d75";
+          ctx.fillStyle = "#4d5f7f";
           ctx.fillRect(d.x - d.w / 2, d.y - d.h / 2, d.w, d.h);
-          ctx.strokeStyle = "#2e394c";
+          ctx.strokeStyle = "#2f415e";
           ctx.strokeRect(d.x - d.w / 2, d.y - d.h / 2, d.w, d.h);
-
           const seat = world.seats[i];
-          ctx.fillStyle = "#2d3748";
-          ctx.fillRect(seat.x - 14, seat.y + 8, 28, 12);
-        });
-
-        // 폰 (림월드 느낌: 머리+몸체 단순 도트)
-        agents.forEach((a) => {
-          moveAgent(a);
-
-          // 그림자
-          ctx.fillStyle = "rgba(0,0,0,.25)";
-          ctx.fillRect(a.x - 9, a.y + 9, 18, 5);
-
-          // 몸체
-          ctx.fillStyle = a.color;
-          ctx.fillRect(a.x - 7, a.y - 6, 14, 16);
-          // 머리
-          ctx.fillStyle = "#e7c8a0";
-          ctx.fillRect(a.x - 5, a.y - 12, 10, 7);
-
-          // 상태 링
-          ctx.strokeStyle = a.seated ? "#79f29d" : "#ffbe57";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(a.x - 10, a.y - 15, 20, 28);
-
-          // 아이디
-          ctx.fillStyle = "#e2e8f0";
-          ctx.font = "10px monospace";
-          ctx.fillText(a.id, a.x - 18, a.y - 18);
-
-          if (a.speech) {
-            const bw = 92;
-            const bh = 20;
-            ctx.fillStyle = "rgba(10,15,25,.88)";
-            ctx.fillRect(a.x - bw / 2, a.y - 42, bw, bh);
-            ctx.strokeStyle = "#70d6ff";
-            ctx.strokeRect(a.x - bw / 2, a.y - 42, bw, bh);
-            ctx.fillStyle = "#d7deea";
-            ctx.font = "9px monospace";
-            ctx.fillText(a.speech, a.x - 40, a.y - 29);
-          }
+          ctx.fillStyle = "#2b3a53";
+          ctx.fillRect(seat.x - 16, seat.y + 8, 32, 12);
+          ctx.fillStyle = "#0f1a2d";
+          ctx.fillRect(d.x - 12, d.y - 8, 24, 14);
         });
       }
 
+      function drawPawn(a) {
+        move(a);
+
+        // shadow
+        ctx.fillStyle = "rgba(0,0,0,.25)";
+        ctx.fillRect(a.x - 11, a.y + 11, 22, 5);
+
+        // legs
+        ctx.fillStyle = "#111827";
+        ctx.fillRect(a.x - 6, a.y + 7, 4, 8);
+        ctx.fillRect(a.x + 2, a.y + 7, 4, 8);
+
+        // torso
+        ctx.fillStyle = a.color;
+        ctx.fillRect(a.x - 8, a.y - 6, 16, 15);
+
+        // arms
+        ctx.fillStyle = "#d7b894";
+        ctx.fillRect(a.x - 11, a.y - 2, 3, 9);
+        ctx.fillRect(a.x + 8, a.y - 2, 3, 9);
+
+        // head
+        ctx.fillStyle = "#e7c8a0";
+        ctx.fillRect(a.x - 6, a.y - 13, 12, 8);
+
+        // eyes
+        ctx.fillStyle = "#111827";
+        ctx.fillRect(a.x - 3, a.y - 10, 1, 1);
+        ctx.fillRect(a.x + 2, a.y - 10, 1, 1);
+
+        // state ring
+        ctx.strokeStyle = a.seated ? "#7ef7a9" : "#ffc368";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(a.x - 11, a.y - 16, 22, 32);
+
+        // label
+        ctx.fillStyle = "#edf3ff";
+        ctx.font = "10px monospace";
+        ctx.fillText(a.name, a.x - 18, a.y - 20);
+
+        if (a.speech) {
+          const bw = 108;
+          const bh = 21;
+          ctx.fillStyle = "rgba(11, 18, 32, .9)";
+          ctx.fillRect(a.x - bw / 2, a.y - 44, bw, bh);
+          ctx.strokeStyle = "#73ddff";
+          ctx.strokeRect(a.x - bw / 2, a.y - 44, bw, bh);
+          ctx.fillStyle = "#e6edf8";
+          ctx.font = "10px sans-serif";
+          ctx.fillText(a.speech, a.x - 45, a.y - 30);
+        }
+      }
+
       function renderAgentPanel() {
-        agentListEl.innerHTML = agents.map((a) => `
-          <div class="agent-item">
-            <strong>${a.id}</strong> ${a.name}<br/>
-            성격: ${a.personality} / 창의: ${a.creativity}<br/>
-            언어: ${a.languages.join("/")}<br/>
-            상태: <span class="${a.seated ? "ok" : "idle"}">${a.working ? "업무중" : "대기"} · ${a.seated ? "착석" : "자유이동/기립"}</span>
-          </div>
-        `).join("");
+        agentListEl.innerHTML = agents.map((a) => {
+          const hasKnowledge = !!a.memory["sota_expectation_engine_v3_3"];
+          return `
+            <div class="agent-card">
+              <strong>${a.id}</strong> ${a.name} (${a.role})<br/>
+              <span class="badge k">${a.languages.join("/")}</span>
+              <span class="badge ${hasKnowledge ? "ok" : "warn"}">${hasKnowledge ? "SOTA Loaded" : "SOTA Empty"}</span>
+              <span class="badge ${a.seated ? "ok" : "warn"}">${a.seated ? "Seated" : "Standing"}</span>
+            </div>
+          `;
+        }).join("");
       }
 
       function tick() {
         ctx.clearRect(0, 0, room.width, room.height);
-        drawWorld();
+        drawOffice();
+        agents.forEach(drawPawn);
         requestAnimationFrame(tick);
       }
 
@@ -442,11 +498,14 @@
       document.getElementById("idleBtn").onclick = idleMode;
       document.getElementById("growthBtn").onclick = growthCycle;
       document.getElementById("greetBtn").onclick = greetingMode;
+      document.getElementById("teachCoreBtn").onclick = teachCore;
+      document.getElementById("spreadBtn").onclick = spreadKnowledge;
+      document.getElementById("recallBtn").onclick = recallCheck;
 
       resize();
       agents.forEach(setIdleTarget);
       renderAgentPanel();
-      log("RimWorld 스타일 UI 로드 완료");
+      log("Executive office UI ready.");
       tick();
     </script>
   </body>

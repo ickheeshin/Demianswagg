@@ -14,7 +14,20 @@ def demo() -> None:
     for line in sim.run_team_greeting():
         print(line)
 
-    print("=== WORK MODE ===")
+    print("\n=== SOTA ENGINE TRAINING (BOUN + RIMO) ===")
+    for line in sim.teach_sota_engine_to_boun_and_rimo():
+        print(line)
+
+    print("\n=== SOTA ENGINE SPREAD ===")
+    for line in sim.spread_sota_engine_from_leads():
+        print(line)
+
+    print("\n=== SOTA ENGINE RECALL CHECK ===")
+    print(sim.recall_sota_engine("보운"))
+    print(sim.recall_sota_engine("리모"))
+    print(sim.recall_sota_engine("TBD-3"))
+
+    print("\n=== WORK MODE ===")
     for line in sim.assign_tasks(tasks):
         print(line)
 
